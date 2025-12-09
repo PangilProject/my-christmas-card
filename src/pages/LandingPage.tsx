@@ -1,6 +1,6 @@
-import { useNavigate } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
-import Snowfall from '../components/Snowfall';
+import { useNavigate } from "react-router-dom";
+import styled, { keyframes } from "styled-components";
+import Snowfall from "../components/Snowfall";
 
 const float = keyframes`
   0%, 100% {
@@ -18,7 +18,7 @@ const Wrapper = styled.div`
   justify-content: center;
   height: 100vh;
   background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
-  color: #FFF8E7; /* Warm White */
+  color: #fff8e7; /* Warm White */
   text-align: center;
   overflow: hidden; /* Hide overflowing snowflakes */
   position: relative; /* Positioning context for Snowfall */
@@ -48,12 +48,12 @@ const Graphic = styled.div`
 `;
 
 const Title = styled.h1`
-  font-family: 'Mountains of Christmas', cursive;
+  font-family: "Mountains of Christmas", cursive;
   font-size: 3.5rem;
   font-weight: 700;
   margin-bottom: 10px;
-  color: #FFF8E7; /* Warm White */
-  text-shadow: 0 0 10px #D4A373, 0 0 15px #D4A373; /* Gold Accent Shadow */
+  color: #fff8e7; /* Warm White */
+  text-shadow: 0 0 10px #d4a373, 0 0 15px #d4a373; /* Gold Accent Shadow */
 `;
 
 const Description = styled.p`
@@ -61,24 +61,25 @@ const Description = styled.p`
   margin-bottom: 40px;
   max-width: 400px;
   line-height: 1.5;
-  color: #FFF8E7; /* Warm White */
+  color: #fff8e7; /* Warm White */
 `;
 
 const StartButton = styled.button`
-  font-family: 'Mountains of Christmas', cursive;
+  font-family: "Mountains of Christmas", cursive;
   font-size: 2rem;
   font-weight: 700;
   padding: 15px 40px;
   border-radius: 50px;
   border: none;
-  background-color: #E63946; /* Primary Red */
-  color: #FFF8E7; /* Warm White */
+  background-color: #e63946; /* Primary Red */
+  color: #fff8e7; /* Warm White */
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease,
+    box-shadow 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 
   &:hover {
-    background-color: #B5171A; /* Dark Red Accent */
+    background-color: #b5171a; /* Dark Red Accent */
     transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   }
@@ -87,18 +88,9 @@ const StartButton = styled.button`
 // Simple SVG Gift Box Component
 const GiftBoxIcon = () => (
   <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <path
-      fill="#E63946" /* Primary Red */
-      d="M10 30 H 90 V 90 H 10 Z"
-    />
-    <path
-      fill="#D4A373" /* Gold Accent */
-      d="M45 10 H 55 V 90 H 45 Z"
-    />
-    <path
-      fill="#D4A373" /* Gold Accent */
-      d="M10 45 H 90 V 55 H 10 Z"
-    />
+    <path fill="#E63946" /* Primary Red */ d="M10 30 H 90 V 90 H 10 Z" />
+    <path fill="#D4A373" /* Gold Accent */ d="M45 10 H 55 V 90 H 45 Z" />
+    <path fill="#D4A373" /* Gold Accent */ d="M10 45 H 90 V 55 H 10 Z" />
     <path
       fill="#D4A373" /* Gold Accent */
       d="M45 10 C 40 0, 20 0, 25 15 C 30 30, 45 20, 45 10 Z"
@@ -110,12 +102,11 @@ const GiftBoxIcon = () => (
   </svg>
 );
 
-
 function LandingPage() {
   const navigate = useNavigate();
 
   const handleStart = () => {
-    navigate('/question');
+    navigate("/question");
   };
 
   return (
@@ -127,7 +118,10 @@ function LandingPage() {
         </Graphic>
         <Title>My Christmas MBTI</Title>
         <Description>
-          간단한 테스트를 통해 당신의 크리스마스 성향을 알아보고,<br/>
+          간단한 테스트를
+          <br />
+          통해 당신의 크리스마스 스타일을 알아보고,
+          <br />
           어울리는 활동과 캐롤을 추천받아 보세요!
         </Description>
         <StartButton onClick={handleStart}>START</StartButton>

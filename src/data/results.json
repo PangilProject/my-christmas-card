@@ -3,64 +3,104 @@
     "name": "산타 조력자",
     "keyword": "따뜻함, 배려, 공동체",
     "description": "주변 사람들에게 행복을 전파하는 ‘착한 마음의 대사’같은 당신!",
-    "recommend": "감사 메시지 한 통 보내기",
+    "recommend": [
+      "감사 메시지 한 통 보내기",
+      "올해 고마웠던 사람에게 작은 선물 전달하기",
+      "주변 사람에게 따뜻한 칭찬 한 마디 건네보기"
+    ],
     "song": "Santa Tell Me – Ariana Grande",
-    "image": "/assets/santa_helper.png"
+    "image": "/assets/santa_helper.png",
+    "songUrl": "https://www.youtube.com/watch?v=nlR0MkrRklg"
   },
   "루돌프 에너지": {
     "name": "루돌프 에너지",
     "keyword": "열정, 활동성, 외향 에너지",
     "description": "크리스마스 파티는 바로 당신이 띄웁니다! 친구들을 이끄는 분위기 메이커.",
-    "recommend": "크리스마스 파티 기획하기",
+    "recommend": [
+      "크리스마스 파티 기획하기",
+      "지인들과 즉흥 모임 열기",
+      "올해 마지막 액티비티(스케이트, 조명 거리 산책 등) 떠나기"
+    ],
     "song": "All I Want for Christmas Is You - Mariah Carey",
-    "image": "/assets/rudolph.png"
+    "image": "/assets/rudolph.png",
+    "songUrl": "https://www.youtube.com/watch?v=yXQViqx6GMY"
   },
   "캐롤 중독자": {
     "name": "캐롤 중독자",
     "keyword": "감성, 음악, 분위기 장인",
     "description": "12월이면 자동으로 플레이리스트가 켜지는 당신. 크리스마스 감성의 장인!",
-    "recommend": "올해 나만의 캐롤 플레이리스트 만들기",
+    "recommend": [
+      "올해 나만의 캐롤 플레이리스트 만들기",
+      "친구에게 ‘너의 캐롤 리스트도 알려줘!’ 공유 요청하기",
+      "크리스마스 분위기 나는 카페에서 음악 감상하기"
+    ],
     "song": "Last Christmas - Wham!",
-    "image": "/assets/carol_addict.png"
+    "image": "/assets/carol_addict.png",
+    "songUrl": "https://www.youtube.com/watch?v=E8gmARGvPlI"
   },
   "눈 오는 날 산책러": {
     "name": "눈 오는 날 산책러",
     "keyword": "차분함, 고요, 혼자만의 시간",
     "description": "화려한 파티보다는 고요한 크리스마스의 낭만을 즐기는 당신.",
-    "recommend": "카페에서 혼자 책 읽기",
+    "recommend": [
+      "카페에서 혼자 책 읽기",
+      "따뜻한 머그잔 챙기고 야간 산책하기",
+      "올해의 사진·일기 정리하며 혼자만의 시간 보내기"
+    ],
     "song": "The Christmas Song - Nat King Cole",
-    "image": "/assets/walker.png"
+    "image": "/assets/walker.png",
+    "songUrl": "https://www.youtube.com/watch?v=wKhRnZZ0cJI&list=RDwKhRnZZ0cJI&start_radio=1"
   },
   "선물요정": {
     "name": "선물요정",
     "keyword": "센스, 디테일, 정성",
     "description": "선물을 '주는' 것만으로도 행복을 느끼는 당신은 타고난 산타의 요정!",
-    "recommend": "올해 베스트 선물 리스트 만들어보기",
+    "recommend": [
+      "올해 베스트 선물 리스트 만들어보기",
+      "친구·연인의 취향 조사해서 맞춤 선물 준비하기",
+      "작은 랜덤박스 선물 만들어 지인들에게 나눠주기"
+    ],
     "song": "Mistletoe - Justin Bieber",
-    "image": "/assets/gift_fairy.png"
+    "image": "/assets/gift_fairy.png",
+    "songUrl": "https://www.youtube.com/watch?v=LUjn3RpkcKY&list=RDLUjn3RpkcKY&start_radio=1"
   },
   "연말 감성주의자": {
     "name": "연말 감성주의자",
     "keyword": "회고, 자기성찰, 의미 찾기",
     "description": "크리스마스는 단순한 이벤트가 아니라, 한 해를 돌아보는 감정의 절정기!",
-    "recommend": "연말 회고 작성하기",
+    "recommend": [
+      "연말 회고 작성하기",
+      "지나온 순간들을 사진·영상으로 정리하기",
+      "내년 버킷리스트 혹은 목표 3개 적어보기"
+    ],
     "song": "White Christmas - Bing Crosby",
-    "image": "/assets/sentimentalist.png"
+    "image": "/assets/sentimentalist.png",
+    "songUrl": "https://www.youtube.com/watch?v=v5ryZdpEHqM&list=RDv5ryZdpEHqM&start_radio=1"
   },
   "핫초코 집순이/집돌이": {
     "name": "핫초코 집순이/집돌이",
     "keyword": "귀차니즘, 집콕, 따뜻함",
     "description": "가장 완벽한 크리스마스는 '이불 + 핫초코 + 넷플릭스' 조합이라고 믿는 당신.",
-    "recommend": "크리스마스 영화 1편 정주행하기",
+    "recommend": [
+      "크리스마스 영화 1편 정주행하기",
+      "이불 덮고 핫초코 마시며 겨울 브이로그 보기",
+      "한 해 동안 못 본 콘텐츠 몰아보기(드라마/유튜브)"
+    ],
     "song": "Let It Snow! Let It Snow! Let It Snow! - Frank Sinatra",
-    "image": "/assets/homebody.png"
+    "image": "/assets/homebody.png",
+    "songUrl": "https://www.youtube.com/watch?v=sE3uRRFVsmc&list=RDsE3uRRFVsmc&start_radio=1"
   },
   "인싸 파티플래너": {
     "name": "인싸 파티플래너",
     "keyword": "모임, 기획, 에너지",
     "description": "크리스마스를 핑계로 사람들을 모으는 당신! 연말 파티는 당신 손에 달렸어요.",
-    "recommend": "친구들과의 모임 일정 잡기",
+    "recommend": [
+      "친구들과의 모임 일정 잡기",
+      "파티 테마 정하고 드레스 코드 맞춰보기",
+      "지인들과 함께하는 깜짝 선물 교환 이벤트 준비하기"
+    ],
     "song": "Jingle Bell Rock - Bobby Helms",
-    "image": "/assets/party_planner.png"
+    "image": "/assets/party_planner.png",
+    "songUrl": "https://www.youtube.com/watch?v=nIhs1T7OcZg&list=RDnIhs1T7OcZg&start_radio=1"
   }
 }

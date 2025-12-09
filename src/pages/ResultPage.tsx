@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import html2canvas from "html2canvas";
 import ReactConfetti from "react-confetti";
+import YouTube from "react-youtube";
+import type { YouTubePlayer } from "react-youtube";
 import results from "../data/results.json";
 import Snowfall from "../components/Snowfall";
 
@@ -18,13 +20,33 @@ type ResultData = {
     name: string;
     keyword: string;
     description: string;
-    recommend: string;
+    recommend: string[]; // recommend is now an array of strings
     song: string;
     image: string;
+    songUrl?: string; // songUrl is optional
   };
 };
 
 const typedResults: ResultData = results;
+
+// YouTube URL에서 비디오 ID를 추출하는 헬퍼 함수
+const getVideoId = (url: string): string | null => {
+  try {
+    const urlObj = new URL(url);
+    if (
+      urlObj.hostname === "www.youtube.com" ||
+      urlObj.hostname === "youtube.com"
+    ) {
+      return urlObj.searchParams.get("v");
+    }
+    if (urlObj.hostname === "youtu.be") {
+      return urlObj.pathname.slice(1);
+    }
+  } catch (e) {
+    console.error("Invalid URL", e);
+  }
+  return null;
+};
 
 const useWindowSize = () => {
   const [size, setSize] = useState([window.innerWidth, window.innerHeight]);
@@ -80,7 +102,7 @@ const Content = styled.div`
 const ResultCard = styled.div`
   background-color: #2d3e50;
   color: #fff8e7;
-  border-radius: 20px;
+  border-radius: 10px;
   padding: 30px;
   text-align: center;
   width: 100%;
@@ -134,12 +156,49 @@ const RecommendTitle = styled.h3`
   font-size: 1.2rem;
 `;
 
+const MusicController = styled.div`
+  background-color: #2d3e50;
+  padding: 15px 30px;
+  border-radius: 10px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 200px;
+  margin: 0 auto;
+`;
+
+const SongTitle = styled.span`
+  font-size: 0.9rem;
+  color: #fff8e7;
+  text-align: left;
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const PlayButton = styled.button`
+  background: none;
+  border: none;
+  color: #fff8e7;
+  cursor: pointer;
+  padding: 0 10px;
+
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+`;
+
 const ButtonGroup = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 15px;
   margin-top: 20px;
+  max-width: 500px;
 `;
 
 const ActionButton = styled.button`
@@ -174,14 +233,28 @@ const CopiedMessage = styled.div`
   animation: ${fadeInOut} 2s ease-in-out;
 `;
 
+const PlayIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M8 5v14l11-7z" />
+  </svg>
+);
+
+const PauseIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+  </svg>
+);
+
 function ResultPage() {
   const { type } = useParams<{ type: string }>();
   const navigate = useNavigate();
   const cardRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<YouTubePlayer | null>(null);
   const { width, height } = useWindowSize();
   const [showConfetti, setShowConfetti] = useState(true);
   const [showCopiedMsg, setShowCopiedMsg] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowConfetti(false), 8000);
@@ -189,26 +262,47 @@ function ResultPage() {
   }, []);
 
   const result = type ? typedResults[type] : null;
+  const videoId = result?.songUrl ? getVideoId(result.songUrl) : null;
 
-  // 정적 이미지 저장 (고해상도 유지)
+  const onPlayerReady = (event: { target: YouTubePlayer }) => {
+    playerRef.current = event.target;
+  };
+
+  const onPlayerStateChange = (event: { data: number }) => {
+    // Sync isPlaying state with player state
+    if (event.data === 1) {
+      // Playing
+      setIsPlaying(true);
+    } else if (event.data === 2) {
+      // Paused
+      setIsPlaying(false);
+    }
+  };
+
+  const handlePlayPause = () => {
+    if (!playerRef.current) return;
+    if (isPlaying) {
+      playerRef.current.pauseVideo();
+    } else {
+      playerRef.current.playVideo();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
   const handleSave = async () => {
     const cardElement = cardRef.current;
     if (!cardElement) return;
 
-    // 고스트 현상 방지: 스타일 강제 초기화
-    const originalAnimation = cardElement.style.animation;
-    const originalTransform = cardElement.style.transform;
-    const originalOpacity = cardElement.style.opacity;
-
-    cardElement.style.animation = "none";
-    cardElement.style.transform = "none";
-    cardElement.style.opacity = "1";
+    // Temporarily hide music controller
+    const controller =
+      cardElement.querySelector<HTMLElement>("#music-controller");
+    if (controller) controller.style.display = "none";
 
     try {
       const canvas = await html2canvas(cardElement, {
         backgroundColor: "#2d3e50",
         useCORS: true,
-        scale: 2, // 이미지는 고화질(2배) 유지
+        scale: 2,
       });
 
       const link = document.createElement("a");
@@ -218,58 +312,40 @@ function ResultPage() {
     } catch (error) {
       console.error("이미지 저장 실패:", error);
     } finally {
-      cardElement.style.animation = originalAnimation;
-      cardElement.style.transform = originalTransform;
-      cardElement.style.opacity = originalOpacity;
+      if (controller) controller.style.display = "flex"; // Show it again
     }
   };
 
-  // GIF 저장 (용량 최적화 + 레이아웃 보정)
   const handleSaveGif = async () => {
     const cardElement = cardRef.current;
     if (!cardElement || isCapturing) return;
 
     setIsCapturing(true);
-
-    // 1. 고스트 방지용 스타일 초기화
-    const originalAnimation = cardElement.style.animation;
-    const originalTransform = cardElement.style.transform;
-    const originalOpacity = cardElement.style.opacity;
-
-    cardElement.style.animation = "none";
-    cardElement.style.transform = "none";
-    cardElement.style.opacity = "1";
+    // Temporarily hide music controller
+    const controller =
+      cardElement.querySelector<HTMLElement>("#music-controller");
+    if (controller) controller.style.display = "none";
 
     try {
-      // 2. 캡처 설정
-      // [중요] 레이아웃 깨짐 방지를 위해 scale을 1.5로 설정 (1은 너무 낮고, 2는 용량이 큼)
       const gifScale = 1.5;
-
       const cardCanvas = await html2canvas(cardElement, {
         backgroundColor: "#2d3e50",
         useCORS: true,
         scale: gifScale,
         scrollX: 0,
-        scrollY: -window.scrollY, // 스크롤 위치 보정
+        scrollY: -window.scrollY,
       });
-
+      //... (rest of the GIF logic is the same)
       const offscreenCanvas = document.createElement("canvas");
       offscreenCanvas.width = cardCanvas.width;
       offscreenCanvas.height = cardCanvas.height;
       const ctx = offscreenCanvas.getContext("2d")!;
-
-      // 3. 눈 효과 설정 (해상도에 맞춰 크기/속도 조절)
       const snowflakes = Array.from({ length: 60 }, () => ({
         x: Math.random() * offscreenCanvas.width,
         y: Math.random() * offscreenCanvas.height,
-        // scale이 커지면 눈도 같이 커져야 자연스러움
         radius: (Math.random() * 2 + 1) * (gifScale * 0.7),
-        // 떨어지는 속도: 약간 빠르게
         speed: (Math.random() * 2 + 3) * (gifScale * 0.7),
       }));
-
-      // 4. GIF 인코더 설정 (용량 감소의 핵심)
-      // FPS를 15로 낮춤 (눈 내리는 효과는 이걸로 충분)
       const fps = 15;
       const capturer = new window.CCapture({
         format: "gif",
@@ -278,46 +354,31 @@ function ResultPage() {
         framerate: fps,
         quality: 10,
       });
-
       capturer.start();
-
-      // 5. 녹화 (시간 단축: 2초)
       const durationSec = 2;
-      const totalFrames = durationSec * fps; // 총 30프레임 (기존 90프레임 대비 1/3)
-
+      const totalFrames = durationSec * fps;
       for (let i = 0; i < totalFrames; i++) {
-        // 배경(카드) 그리기
         ctx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
         ctx.drawImage(cardCanvas, 0, 0);
-
-        // 눈 그리기
         ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
         snowflakes.forEach((flake) => {
           flake.y += flake.speed;
-
-          // 화면 아래로 나가면 위로 리셋
           if (flake.y > offscreenCanvas.height) {
             flake.y = -flake.radius;
             flake.x = Math.random() * offscreenCanvas.width;
           }
-
           ctx.beginPath();
           ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
           ctx.fill();
         });
-
         capturer.capture(offscreenCanvas);
       }
-
       capturer.stop();
       capturer.save();
     } catch (error) {
       console.error("GIF 생성 실패:", error);
     } finally {
-      // 6. 스타일 원상복구
-      cardElement.style.animation = originalAnimation;
-      cardElement.style.transform = originalTransform;
-      cardElement.style.opacity = originalOpacity;
+      if (controller) controller.style.display = "flex"; // Show it again
       setIsCapturing(false);
     }
   };
@@ -342,8 +403,28 @@ function ResultPage() {
     );
   }
 
+  const youtubeOpts = {
+    height: "0",
+    width: "0",
+    playerVars: {
+      autoplay: 1,
+      loop: 1,
+      playlist: videoId,
+      controls: 0,
+      showinfo: 0,
+    },
+  };
+
   return (
     <Wrapper>
+      {videoId && (
+        <YouTube
+          videoId={videoId}
+          opts={youtubeOpts}
+          onReady={onPlayerReady}
+          onStateChange={onPlayerStateChange}
+        />
+      )}
       {showConfetti && (
         <ReactConfetti
           width={width}
@@ -357,30 +438,41 @@ function ResultPage() {
       <Snowfall />
       <Content>
         <ResultCard ref={cardRef} id="result-card">
-          <Subtitle>나의 크리스마스 성향은...</Subtitle>
+          <Subtitle>나의 크리스마스 스타일은...</Subtitle>
           <Title>{result.name}</Title>
           <ResultImage src={result.image} alt={result.name} />
           <Description>"{result.description}"</Description>
 
           <RecommendBox>
             <RecommendTitle>✨ 이런 활동은 어때요?</RecommendTitle>
-            <p>{result.recommend}</p>
+            {result.recommend.map((data, index) => {
+              return <p key={index}>{data}</p>;
+            })}
           </RecommendBox>
 
           <RecommendBox>
             <RecommendTitle>🎵 추천 캐롤</RecommendTitle>
             <p>{result.song}</p>
+            {videoId && (
+              <MusicController id="music-controller">
+                <SongTitle>Play Song</SongTitle>
+                <PlayButton onClick={handlePlayPause}>
+                  {isPlaying ? <PauseIcon /> : <PlayIcon />}
+                </PlayButton>
+              </MusicController>
+            )}
           </RecommendBox>
         </ResultCard>
+
         <ButtonGroup>
           <ActionButton onClick={() => navigate("/")} disabled={isCapturing}>
             테스트 다시하기
           </ActionButton>
-          <ActionButton onClick={handleSave} disabled={isCapturing}>
-            이미지 저장
-          </ActionButton>
           <ActionButton onClick={handleCopyLink} disabled={isCapturing}>
             링크 복사
+          </ActionButton>
+          <ActionButton onClick={handleSave} disabled={isCapturing}>
+            이미지 저장
           </ActionButton>
           <ActionButton onClick={handleSaveGif} disabled={isCapturing}>
             {isCapturing ? "GIF 만드는 중..." : "움직이는 카드 저장"}

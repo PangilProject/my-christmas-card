@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import questions from '../data/questions.json';
-import Snowfall from '../components/Snowfall';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import questions from "../data/questions.json";
+import Snowfall from "../components/Snowfall";
 
 const Wrapper = styled.div`
   display: flex;
@@ -11,7 +11,7 @@ const Wrapper = styled.div`
   justify-content: center;
   height: 100vh;
   background-color: #090a0f; /* Dark Night Sky */
-  color: #FFF8E7; /* Warm White */
+  color: #fff8e7; /* Warm White */
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden; /* Hide overflowing snowflakes */
@@ -35,12 +35,13 @@ const ProgressBarContainer = styled.div`
   border-radius: 10px;
   margin-bottom: 40px;
   overflow: hidden;
+  border: 1px solid #d4a373;
 `;
 
 const ProgressBar = styled.div<{ progress: number }>`
   width: ${(props) => props.progress}%;
   height: 100%;
-  background-color: #E63946; /* Primary Red */
+  background-color: #e63946; /* Primary Red */
   transition: width 0.3s ease-in-out;
 `;
 
@@ -62,9 +63,9 @@ const AnswerButton = styled.button`
   padding: 20px;
   margin-bottom: 15px;
   border-radius: 10px;
-  border: 2px solid #D4A373; /* Gold Accent */
+  border: 2px solid #d4a373; /* Gold Accent */
   background-color: transparent;
-  color: #FFF8E7; /* Warm White */
+  color: #fff8e7; /* Warm White */
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
   margin-left: auto;
