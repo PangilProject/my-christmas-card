@@ -6,7 +6,13 @@ import ReactConfetti from "react-confetti";
 import results from "../data/results.json";
 import Snowfall from "../components/Snowfall";
 
-// This is a type assertion to help TypeScript understand the structure of results.json
+// CCapture.js 타입 정의
+declare global {
+  interface Window {
+    CCapture: any;
+  }
+}
+
 type ResultData = {
   [key: string]: {
     name: string;
@@ -20,7 +26,6 @@ type ResultData = {
 
 const typedResults: ResultData = results;
 
-// A simple hook to get window dimensions
 const useWindowSize = () => {
   const [size, setSize] = useState([window.innerWidth, window.innerHeight]);
   useEffect(() => {
@@ -55,17 +60,17 @@ const Wrapper = styled.div`
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: #090a0f; /* Dark Night Sky */
-  color: #fff8e7; /* Warm White */
+  background-color: #090a0f;
+  color: #fff8e7;
   padding: 40px 20px;
   box-sizing: border-box;
-  overflow: hidden; /* Hide overflowing snowflakes */
-  position: relative; /* Positioning context for Snowfall */
+  overflow: hidden;
+  position: relative;
 `;
 
 const Content = styled.div`
   position: relative;
-  z-index: 20; /* Ensure content is above snowflakes */
+  z-index: 20;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -73,8 +78,8 @@ const Content = styled.div`
 `;
 
 const ResultCard = styled.div`
-  background-color: #2d3e50; /* Darker card background */
-  color: #fff8e7; /* Warm White text for contrast */
+  background-color: #2d3e50;
+  color: #fff8e7;
   border-radius: 20px;
   padding: 30px;
   text-align: center;
@@ -95,15 +100,15 @@ const ResultImage = styled.img`
 
 const Subtitle = styled.p`
   font-size: 1rem;
-  color: #bdc3c7; /* Lighter grey for dark background */
+  color: #bdc3c7;
   margin-bottom: 5px;
 `;
 
 const Title = styled.h1`
   font-family: "IBM Plex Sans KR", cursive;
-  font-weight: bold; /* Adjusted for IBM Plex Sans KR */
-  font-size: 2.5rem; /* Adjusted for IBM Plex Sans KR */
-  color: #e63946; /* Primary Red */
+  font-weight: bold;
+  font-size: 2.5rem;
+  color: #e63946;
   margin-top: 0;
   margin-bottom: 20px;
 `;
@@ -115,7 +120,7 @@ const Description = styled.p`
 `;
 
 const RecommendBox = styled.div`
-  background-color: rgba(0, 0, 0, 0.2); /* Darker transparent bg */
+  background-color: #212f3c;
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 30px;
@@ -123,10 +128,10 @@ const RecommendBox = styled.div`
 
 const RecommendTitle = styled.h3`
   margin-top: 0;
-  color: #2a9d8f; /* Christmas Green */
+  color: #2a9d8f;
   font-family: "IBM Plex Sans KR", cursive;
-  font-weight: bold; /* Adjusted for IBM Plex Sans KR */
-  font-size: 1.2rem; /* Adjusted for IBM Plex Sans KR */
+  font-weight: bold;
+  font-size: 1.2rem;
 `;
 
 const ButtonGroup = styled.div`
@@ -142,14 +147,19 @@ const ActionButton = styled.button`
   padding: 15px 30px;
   border-radius: 10px;
   border: none;
-  background-color: #2a9d8f; /* Christmas Green */
-  color: #fff8e7; /* Warm White */
+  background-color: #2a9d8f;
+  color: #fff8e7;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease,
     box-shadow 0.2s ease;
 
-  &:hover {
-    background-color: #1e6f5c; /* Dark Green */
+  &:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: #1e6f5c;
     transform: scale(1.05);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   }
@@ -158,8 +168,8 @@ const ActionButton = styled.button`
 const CopiedMessage = styled.div`
   margin-top: 15px;
   padding: 10px 20px;
-  background-color: #2a9d8f; /* Christmas Green */
-  color: #fff8e7; /* Warm White */
+  background-color: #2a9d8f;
+  color: #fff8e7;
   border-radius: 5px;
   animation: ${fadeInOut} 2s ease-in-out;
 `;
@@ -171,45 +181,151 @@ function ResultPage() {
   const { width, height } = useWindowSize();
   const [showConfetti, setShowConfetti] = useState(true);
   const [showCopiedMsg, setShowCopiedMsg] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
 
-  // Stop confetti after a few seconds
   useEffect(() => {
     const timer = setTimeout(() => setShowConfetti(false), 8000);
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle the case where type is undefined or not in results
   const result = type ? typedResults[type] : null;
 
-  const handleSave = () => {
-    if (!cardRef.current) return;
+  // 정적 이미지 저장 (고해상도 유지)
+  const handleSave = async () => {
+    const cardElement = cardRef.current;
+    if (!cardElement) return;
 
-    html2canvas(cardRef.current, {
-      backgroundColor: "#2d3e50", // Match card background
-      useCORS: true,
-      scale: 2, // [변경됨] 해상도 2배 (선명하게 저장)
-      onclone: (documentClone) => {
-        // [변경됨] 캡처를 위해 복제된 DOM에서 애니메이션 제거
-        const cloneCard = documentClone.getElementById("result-card");
-        if (cloneCard) {
-          cloneCard.style.animation = "none";
-          cloneCard.style.transform = "none";
-          cloneCard.style.opacity = "1";
-          cloneCard.style.transition = "none";
-        }
-      },
-    }).then((canvas) => {
+    // 고스트 현상 방지: 스타일 강제 초기화
+    const originalAnimation = cardElement.style.animation;
+    const originalTransform = cardElement.style.transform;
+    const originalOpacity = cardElement.style.opacity;
+
+    cardElement.style.animation = "none";
+    cardElement.style.transform = "none";
+    cardElement.style.opacity = "1";
+
+    try {
+      const canvas = await html2canvas(cardElement, {
+        backgroundColor: "#2d3e50",
+        useCORS: true,
+        scale: 2, // 이미지는 고화질(2배) 유지
+      });
+
       const link = document.createElement("a");
       link.download = "my-christmas-card.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
-    });
+    } catch (error) {
+      console.error("이미지 저장 실패:", error);
+    } finally {
+      cardElement.style.animation = originalAnimation;
+      cardElement.style.transform = originalTransform;
+      cardElement.style.opacity = originalOpacity;
+    }
+  };
+
+  // GIF 저장 (용량 최적화 + 레이아웃 보정)
+  const handleSaveGif = async () => {
+    const cardElement = cardRef.current;
+    if (!cardElement || isCapturing) return;
+
+    setIsCapturing(true);
+
+    // 1. 고스트 방지용 스타일 초기화
+    const originalAnimation = cardElement.style.animation;
+    const originalTransform = cardElement.style.transform;
+    const originalOpacity = cardElement.style.opacity;
+
+    cardElement.style.animation = "none";
+    cardElement.style.transform = "none";
+    cardElement.style.opacity = "1";
+
+    try {
+      // 2. 캡처 설정
+      // [중요] 레이아웃 깨짐 방지를 위해 scale을 1.5로 설정 (1은 너무 낮고, 2는 용량이 큼)
+      const gifScale = 1.5;
+
+      const cardCanvas = await html2canvas(cardElement, {
+        backgroundColor: "#2d3e50",
+        useCORS: true,
+        scale: gifScale,
+        scrollX: 0,
+        scrollY: -window.scrollY, // 스크롤 위치 보정
+      });
+
+      const offscreenCanvas = document.createElement("canvas");
+      offscreenCanvas.width = cardCanvas.width;
+      offscreenCanvas.height = cardCanvas.height;
+      const ctx = offscreenCanvas.getContext("2d")!;
+
+      // 3. 눈 효과 설정 (해상도에 맞춰 크기/속도 조절)
+      const snowflakes = Array.from({ length: 60 }, () => ({
+        x: Math.random() * offscreenCanvas.width,
+        y: Math.random() * offscreenCanvas.height,
+        // scale이 커지면 눈도 같이 커져야 자연스러움
+        radius: (Math.random() * 2 + 1) * (gifScale * 0.7),
+        // 떨어지는 속도: 약간 빠르게
+        speed: (Math.random() * 2 + 3) * (gifScale * 0.7),
+      }));
+
+      // 4. GIF 인코더 설정 (용량 감소의 핵심)
+      // FPS를 15로 낮춤 (눈 내리는 효과는 이걸로 충분)
+      const fps = 15;
+      const capturer = new window.CCapture({
+        format: "gif",
+        workersPath: "/",
+        verbose: false,
+        framerate: fps,
+        quality: 10,
+      });
+
+      capturer.start();
+
+      // 5. 녹화 (시간 단축: 2초)
+      const durationSec = 2;
+      const totalFrames = durationSec * fps; // 총 30프레임 (기존 90프레임 대비 1/3)
+
+      for (let i = 0; i < totalFrames; i++) {
+        // 배경(카드) 그리기
+        ctx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+        ctx.drawImage(cardCanvas, 0, 0);
+
+        // 눈 그리기
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+        snowflakes.forEach((flake) => {
+          flake.y += flake.speed;
+
+          // 화면 아래로 나가면 위로 리셋
+          if (flake.y > offscreenCanvas.height) {
+            flake.y = -flake.radius;
+            flake.x = Math.random() * offscreenCanvas.width;
+          }
+
+          ctx.beginPath();
+          ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        capturer.capture(offscreenCanvas);
+      }
+
+      capturer.stop();
+      capturer.save();
+    } catch (error) {
+      console.error("GIF 생성 실패:", error);
+    } finally {
+      // 6. 스타일 원상복구
+      cardElement.style.animation = originalAnimation;
+      cardElement.style.transform = originalTransform;
+      cardElement.style.opacity = originalOpacity;
+      setIsCapturing(false);
+    }
   };
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
     setShowCopiedMsg(true);
-    setTimeout(() => setShowCopiedMsg(false), 2000); // Hide message after 2 seconds
+    setTimeout(() => setShowCopiedMsg(false), 2000);
   };
 
   if (!result) {
@@ -240,7 +356,6 @@ function ResultPage() {
       )}
       <Snowfall />
       <Content>
-        {/* [변경됨] id="result-card" 추가 */}
         <ResultCard ref={cardRef} id="result-card">
           <Subtitle>나의 크리스마스 성향은...</Subtitle>
           <Title>{result.name}</Title>
@@ -258,11 +373,18 @@ function ResultPage() {
           </RecommendBox>
         </ResultCard>
         <ButtonGroup>
-          <ActionButton onClick={() => navigate("/")}>
+          <ActionButton onClick={() => navigate("/")} disabled={isCapturing}>
             테스트 다시하기
           </ActionButton>
-          <ActionButton onClick={handleSave}>이미지 저장</ActionButton>
-          <ActionButton onClick={handleCopyLink}>링크 복사</ActionButton>
+          <ActionButton onClick={handleSave} disabled={isCapturing}>
+            이미지 저장
+          </ActionButton>
+          <ActionButton onClick={handleCopyLink} disabled={isCapturing}>
+            링크 복사
+          </ActionButton>
+          <ActionButton onClick={handleSaveGif} disabled={isCapturing}>
+            {isCapturing ? "GIF 만드는 중..." : "움직이는 카드 저장"}
+          </ActionButton>
         </ButtonGroup>
         {showCopiedMsg && <CopiedMessage>복사 완료!</CopiedMessage>}
       </Content>
