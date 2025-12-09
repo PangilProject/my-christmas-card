@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import Snowfall from "../components/Snowfall";
@@ -58,10 +59,32 @@ const Title = styled.h1`
 
 const Description = styled.p`
   font-size: 1.2rem;
-  margin-bottom: 40px;
+  margin-bottom: 20px; /* Adjusted margin */
   max-width: 400px;
   line-height: 1.5;
   color: #fff8e7; /* Warm White */
+`;
+
+const Input = styled.input`
+  font-family: "IBM Plex Sans KR", sans-serif;
+  font-size: 1.2rem;
+  padding: 10px 15px;
+  margin-bottom: 30px;
+  border-radius: 8px;
+  border: 2px solid #D4A373; /* Gold Accent */
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff8e7;
+  text-align: center;
+  width: 80%;
+  max-width: 300px;
+
+  &::placeholder {
+    color: #bdc3c7;
+  }
+  &:focus {
+    outline: none;
+    border-color: #E63946; /* Primary Red */
+  }
 `;
 
 const StartButton = styled.button`
@@ -78,7 +101,13 @@ const StartButton = styled.button`
     box-shadow 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 
-  &:hover {
+  &:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  &:hover:not(:disabled) {
     background-color: #b5171a; /* Dark Red Accent */
     transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
@@ -104,9 +133,13 @@ const GiftBoxIcon = () => (
 
 function LandingPage() {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("");
 
   const handleStart = () => {
-    navigate("/question");
+    if (userName.trim()) {
+      sessionStorage.setItem("userName", userName.trim());
+      navigate("/question");
+    }
   };
 
   return (
@@ -124,7 +157,20 @@ function LandingPage() {
           <br />
           어울리는 활동과 캐롤을 추천받아 보세요!
         </Description>
-        <StartButton onClick={handleStart}>START</StartButton>
+        <Input
+          type="text"
+          placeholder="이름을 입력해주세요!"
+          value={userName}
+          onChange={(e) => setUserName(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter' && userName.trim()) {
+              handleStart();
+            }
+          }}
+        />
+        <StartButton onClick={handleStart} disabled={!userName.trim()}>
+          START
+        </StartButton>
       </Content>
     </Wrapper>
   );

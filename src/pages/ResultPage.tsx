@@ -138,7 +138,9 @@ const Title = styled.h1`
 const Description = styled.p`
   font-size: 1.1rem;
   line-height: 1.6;
+  margin: 0 auto;
   margin-bottom: 30px;
+  max-width: 300px;
 `;
 
 const RecommendBox = styled.div`
@@ -146,6 +148,22 @@ const RecommendBox = styled.div`
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 30px;
+`;
+
+const RecommendList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+`;
+
+const RecommendItem = styled.li`
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 const RecommendTitle = styled.h3`
@@ -157,22 +175,20 @@ const RecommendTitle = styled.h3`
 `;
 
 const MusicController = styled.div`
-  background-color: #2d3e50;
   padding: 15px 30px;
   border-radius: 10px;
-  margin-top: 10px;
   display: flex;
   align-items: center;
+  max-width: 120px;
   justify-content: space-between;
-  max-width: 200px;
   margin: 0 auto;
+  border: 1px solid white;
 `;
 
 const SongTitle = styled.span`
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #fff8e7;
   text-align: left;
-  flex-grow: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -255,9 +271,14 @@ function ResultPage() {
   const [showCopiedMsg, setShowCopiedMsg] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => setShowConfetti(false), 8000);
+    const storedName = sessionStorage.getItem("userName");
+    if (storedName) {
+      setUserName(storedName);
+    }
     return () => clearTimeout(timer);
   }, []);
 
@@ -294,8 +315,10 @@ function ResultPage() {
     if (!cardElement) return;
 
     // Temporarily hide music controller
-    const controller =
-      cardElement.querySelector<HTMLElement>("#music-controller");
+    const controller = document.getElementById("music-controller"); // Use document.getElementById for elements outside cardRef
+    const originalControllerDisplay = controller
+      ? controller.style.display
+      : "";
     if (controller) controller.style.display = "none";
 
     try {
@@ -312,7 +335,7 @@ function ResultPage() {
     } catch (error) {
       console.error("이미지 저장 실패:", error);
     } finally {
-      if (controller) controller.style.display = "flex"; // Show it again
+      if (controller) controller.style.display = originalControllerDisplay; // Show it again
     }
   };
 
@@ -322,8 +345,10 @@ function ResultPage() {
 
     setIsCapturing(true);
     // Temporarily hide music controller
-    const controller =
-      cardElement.querySelector<HTMLElement>("#music-controller");
+    const controller = document.getElementById("music-controller"); // Use document.getElementById for elements outside cardRef
+    const originalControllerDisplay = controller
+      ? controller.style.display
+      : "";
     if (controller) controller.style.display = "none";
 
     try {
@@ -335,17 +360,19 @@ function ResultPage() {
         scrollX: 0,
         scrollY: -window.scrollY,
       });
-      //... (rest of the GIF logic is the same)
+
       const offscreenCanvas = document.createElement("canvas");
       offscreenCanvas.width = cardCanvas.width;
       offscreenCanvas.height = cardCanvas.height;
       const ctx = offscreenCanvas.getContext("2d")!;
+
       const snowflakes = Array.from({ length: 60 }, () => ({
         x: Math.random() * offscreenCanvas.width,
         y: Math.random() * offscreenCanvas.height,
         radius: (Math.random() * 2 + 1) * (gifScale * 0.7),
         speed: (Math.random() * 2 + 3) * (gifScale * 0.7),
       }));
+
       const fps = 15;
       const capturer = new window.CCapture({
         format: "gif",
@@ -354,12 +381,16 @@ function ResultPage() {
         framerate: fps,
         quality: 10,
       });
+
       capturer.start();
+
       const durationSec = 2;
       const totalFrames = durationSec * fps;
+
       for (let i = 0; i < totalFrames; i++) {
         ctx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
         ctx.drawImage(cardCanvas, 0, 0);
+
         ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
         snowflakes.forEach((flake) => {
           flake.y += flake.speed;
@@ -371,14 +402,16 @@ function ResultPage() {
           ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
           ctx.fill();
         });
+
         capturer.capture(offscreenCanvas);
       }
+
       capturer.stop();
       capturer.save();
     } catch (error) {
       console.error("GIF 생성 실패:", error);
     } finally {
-      if (controller) controller.style.display = "flex"; // Show it again
+      if (controller) controller.style.display = originalControllerDisplay; // Show it again
       setIsCapturing(false);
     }
   };
@@ -438,16 +471,22 @@ function ResultPage() {
       <Snowfall />
       <Content>
         <ResultCard ref={cardRef} id="result-card">
-          <Subtitle>나의 크리스마스 스타일은...</Subtitle>
+          <Subtitle>
+            {userName
+              ? `${userName}님의 크리스마스 스타일은...`
+              : "나의 크리스마스 스타일은..."}
+          </Subtitle>
           <Title>{result.name}</Title>
           <ResultImage src={result.image} alt={result.name} />
           <Description>"{result.description}"</Description>
 
           <RecommendBox>
             <RecommendTitle>✨ 이런 활동은 어때요?</RecommendTitle>
-            {result.recommend.map((data, index) => {
-              return <p key={index}>{data}</p>;
-            })}
+            <RecommendList>
+              {result.recommend.map((rec, index) => (
+                <RecommendItem key={index}>• {rec}</RecommendItem>
+              ))}
+            </RecommendList>
           </RecommendBox>
 
           <RecommendBox>
