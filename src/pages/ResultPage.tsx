@@ -187,6 +187,17 @@ function ResultPage() {
     html2canvas(cardRef.current, {
       backgroundColor: "#2d3e50", // Match card background
       useCORS: true,
+      scale: 2, // [변경됨] 해상도 2배 (선명하게 저장)
+      onclone: (documentClone) => {
+        // [변경됨] 캡처를 위해 복제된 DOM에서 애니메이션 제거
+        const cloneCard = documentClone.getElementById("result-card");
+        if (cloneCard) {
+          cloneCard.style.animation = "none";
+          cloneCard.style.transform = "none";
+          cloneCard.style.opacity = "1";
+          cloneCard.style.transition = "none";
+        }
+      },
     }).then((canvas) => {
       const link = document.createElement("a");
       link.download = "my-christmas-card.png";
@@ -229,7 +240,8 @@ function ResultPage() {
       )}
       <Snowfall />
       <Content>
-        <ResultCard ref={cardRef}>
+        {/* [변경됨] id="result-card" 추가 */}
+        <ResultCard ref={cardRef} id="result-card">
           <Subtitle>나의 크리스마스 성향은...</Subtitle>
           <Title>{result.name}</Title>
           <ResultImage src={result.image} alt={result.name} />
