@@ -1,10 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { ref, runTransaction } from "firebase/database";
 import { database } from "../firebase";
 import questions from "../data/questions.json";
 import Snowfall from "../components/Snowfall";
+
+const slideIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -55,9 +66,12 @@ const QuestionContainer = styled.div`
 const QuestionTitle = styled.h2`
   font-size: 2rem;
   margin-bottom: 40px;
+  animation: ${slideIn} 0.5s ease-out forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
 `;
 
-const AnswerButton = styled.button`
+const AnswerButton = styled.button<{ delay: number }>`
   display: block;
   width: 100%;
   max-width: 500px;
@@ -72,6 +86,9 @@ const AnswerButton = styled.button`
   transition: background-color 0.2s ease, transform 0.2s ease;
   margin-left: auto;
   margin-right: auto;
+  animation: ${slideIn} 0.5s ease-out forwards;
+  animation-delay: ${(props) => props.delay}s;
+  opacity: 0;
 
   &:hover {
     background-color: rgba(212, 163, 115, 0.1); /* Gold Accent transparent */
@@ -135,11 +152,12 @@ function QuestionPage() {
         <ProgressBarContainer>
           <ProgressBar progress={progress} />
         </ProgressBarContainer>
-        <QuestionContainer>
+        <QuestionContainer key={questionIndex}>
           <QuestionTitle>{currentQuestion.question}</QuestionTitle>
           {currentQuestion.answers.map((answer, index) => (
             <AnswerButton
               key={index}
+              delay={0.3 + 0.1 * index}
               onClick={() => handleAnswerClick(answer.type)}
             >
               {answer.text}

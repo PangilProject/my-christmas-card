@@ -5,7 +5,6 @@ import html2canvas from "html2canvas";
 import ReactConfetti from "react-confetti";
 import YouTube from "react-youtube";
 import type { YouTubePlayer } from "react-youtube";
-import { database } from "../firebase";
 import results from "../data/results.json";
 import Snowfall from "../components/Snowfall";
 
@@ -296,7 +295,7 @@ function ResultPage() {
     }
 
     const params = new URLSearchParams(location.search);
-    const userNumberFromUrl = params.get('userNumber');
+    const userNumberFromUrl = params.get("userNumber");
     if (userNumberFromUrl) {
       setUserNumber(parseInt(userNumberFromUrl, 10));
     }
