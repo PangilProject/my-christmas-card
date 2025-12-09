@@ -2,7 +2,7 @@ import styled from "styled-components";
 import AppRouter from "./routes/AppRouter";
 
 const FooterContainer = styled.footer`
-  position: fixed;
+  background-color: black;
   display: flex;
   justify-content: center;
   align-items: center;
