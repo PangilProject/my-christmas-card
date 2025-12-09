@@ -1,5 +1,5 @@
 {
-  "산타 조력자": {
+  "santa_helper": {
     "name": "산타 조력자",
     "keyword": "따뜻함, 배려, 공동체",
     "description": "주변 사람들에게 행복을 전파하는 ‘착한 마음의 대사’같은 당신!",
@@ -12,7 +12,7 @@
     "image": "/assets/santa_helper.png",
     "songUrl": "https://www.youtube.com/watch?v=nlR0MkrRklg"
   },
-  "루돌프 에너지": {
+  "rudolph": {
     "name": "루돌프 에너지",
     "keyword": "열정, 활동성, 외향 에너지",
     "description": "크리스마스 파티는 바로 당신이 띄웁니다! 친구들을 이끄는 분위기 메이커.",
@@ -25,7 +25,7 @@
     "image": "/assets/rudolph.png",
     "songUrl": "https://www.youtube.com/watch?v=yXQViqx6GMY"
   },
-  "캐롤 중독자": {
+  "carol_addict": {
     "name": "캐롤 중독자",
     "keyword": "감성, 음악, 분위기 장인",
     "description": "12월이면 자동으로 플레이리스트가 켜지는 당신. 크리스마스 감성의 장인!",
@@ -38,7 +38,7 @@
     "image": "/assets/carol_addict.png",
     "songUrl": "https://www.youtube.com/watch?v=E8gmARGvPlI"
   },
-  "눈 오는 날 산책러": {
+  "walker": {
     "name": "눈 오는 날 산책러",
     "keyword": "차분함, 고요, 혼자만의 시간",
     "description": "화려한 파티보다는 고요한 크리스마스의 낭만을 즐기는 당신.",
@@ -51,7 +51,7 @@
     "image": "/assets/walker.png",
     "songUrl": "https://www.youtube.com/watch?v=wKhRnZZ0cJI&list=RDwKhRnZZ0cJI&start_radio=1"
   },
-  "선물요정": {
+  "gift_fairy": {
     "name": "선물요정",
     "keyword": "센스, 디테일, 정성",
     "description": "선물을 '주는' 것만으로도 행복을 느끼는 당신은 타고난 산타의 요정!",
@@ -64,7 +64,7 @@
     "image": "/assets/gift_fairy.png",
     "songUrl": "https://www.youtube.com/watch?v=LUjn3RpkcKY&list=RDLUjn3RpkcKY&start_radio=1"
   },
-  "연말 감성주의자": {
+  "sentimentalist": {
     "name": "연말 감성주의자",
     "keyword": "회고, 자기성찰, 의미 찾기",
     "description": "크리스마스는 단순한 이벤트가 아니라, 한 해를 돌아보는 감정의 절정기!",
@@ -77,7 +77,7 @@
     "image": "/assets/sentimentalist.png",
     "songUrl": "https://www.youtube.com/watch?v=v5ryZdpEHqM&list=RDv5ryZdpEHqM&start_radio=1"
   },
-  "핫초코 집순이/집돌이": {
+  "homebody": {
     "name": "핫초코 집순이/집돌이",
     "keyword": "귀차니즘, 집콕, 따뜻함",
     "description": "가장 완벽한 크리스마스는 '이불 + 핫초코 + 넷플릭스' 조합이라고 믿는 당신.",
@@ -90,7 +90,7 @@
     "image": "/assets/homebody.png",
     "songUrl": "https://www.youtube.com/watch?v=sE3uRRFVsmc&list=RDsE3uRRFVsmc&start_radio=1"
   },
-  "인싸 파티플래너": {
+  "party_planner": {
     "name": "인싸 파티플래너",
     "keyword": "모임, 기획, 에너지",
     "description": "크리스마스를 핑계로 사람들을 모으는 당신! 연말 파티는 당신 손에 달렸어요.",
