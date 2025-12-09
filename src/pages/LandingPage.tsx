@@ -27,6 +27,7 @@ const Wrapper = styled.div`
   position: relative; /* Positioning context for Snowfall */
   padding: 20px;
   box-sizing: border-box;
+  padding-bottom: 100px;
 `;
 
 const Content = styled.div`

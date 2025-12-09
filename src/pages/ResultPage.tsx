@@ -88,6 +88,7 @@ const Wrapper = styled.div`
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
+  padding-bottom: 100px;
 `;
 
 const Content = styled.div`

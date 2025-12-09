@@ -29,6 +29,7 @@ const Wrapper = styled.div`
   box-sizing: border-box;
   overflow: hidden; /* Hide overflowing snowflakes */
   position: relative; /* Positioning context for Snowfall */
+  padding-bottom: 100px;
 `;
 
 const Content = styled.div`
