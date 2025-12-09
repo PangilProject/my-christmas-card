@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
+import { ref, onValue } from "firebase/database";
+import { database } from "../firebase";
 import Snowfall from "../components/Snowfall";
 
 const float = keyframes`
@@ -71,7 +73,7 @@ const Input = styled.input`
   padding: 10px 15px;
   margin-bottom: 30px;
   border-radius: 8px;
-  border: 2px solid #D4A373; /* Gold Accent */
+  border: 2px solid #d4a373; /* Gold Accent */
   background-color: rgba(255, 255, 255, 0.1);
   color: #fff8e7;
   text-align: center;
@@ -83,7 +85,7 @@ const Input = styled.input`
   }
   &:focus {
     outline: none;
-    border-color: #E63946; /* Primary Red */
+    border-color: #e63946; /* Primary Red */
   }
 `;
 
@@ -114,6 +116,13 @@ const StartButton = styled.button`
   }
 `;
 
+const ParticipantCounter = styled.p`
+  margin-top: 20px;
+  margin-bottom: 40px;
+  font-size: 1.5rem;
+  color: #d4a373; /* Gold Accent */
+`;
+
 // Simple SVG Gift Box Component
 const GiftBoxIcon = () => (
   <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -134,10 +143,20 @@ const GiftBoxIcon = () => (
 function LandingPage() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
+  const [participantCount, setParticipantCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    const countRef = ref(database, "participantCount");
+    onValue(countRef, (snapshot) => {
+      const data = snapshot.val();
+      setParticipantCount(data);
+    });
+  }, []);
 
   const handleStart = () => {
     if (userName.trim()) {
       sessionStorage.setItem("userName", userName.trim());
+      sessionStorage.removeItem("hasParticipated"); // Reset participation flag
       navigate("/question");
     }
   };
@@ -157,13 +176,19 @@ function LandingPage() {
           <br />
           어울리는 활동과 캐롤을 추천받아 보세요!
         </Description>
+
+        {participantCount !== null && (
+          <ParticipantCounter>
+            지금까지 {participantCount.toLocaleString()}명이 참여했어요!
+          </ParticipantCounter>
+        )}
         <Input
           type="text"
           placeholder="이름을 입력해주세요!"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
           onKeyPress={(e) => {
-            if (e.key === 'Enter' && userName.trim()) {
+            if (e.key === "Enter" && userName.trim()) {
               handleStart();
             }
           }}

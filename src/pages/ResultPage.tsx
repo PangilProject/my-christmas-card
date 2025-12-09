@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import html2canvas from "html2canvas";
 import ReactConfetti from "react-confetti";
 import YouTube from "react-youtube";
 import type { YouTubePlayer } from "react-youtube";
+import { database } from "../firebase";
 import results from "../data/results.json";
 import Snowfall from "../components/Snowfall";
 
@@ -102,7 +103,7 @@ const Content = styled.div`
 const ResultCard = styled.div`
   background-color: #2d3e50;
   color: #fff8e7;
-  border-radius: 10px;
+  border-radius: 20px;
   padding: 30px;
   text-align: center;
   width: 100%;
@@ -126,6 +127,14 @@ const Subtitle = styled.p`
   margin-bottom: 5px;
 `;
 
+const ParticipantNumber = styled.p`
+  font-size: 1rem;
+  color: #d4a373; /* Gold Accent */
+  margin-top: 5px;
+  margin-bottom: 20px;
+  font-weight: bold;
+`;
+
 const Title = styled.h1`
   font-family: "IBM Plex Sans KR", cursive;
   font-weight: bold;
@@ -147,7 +156,7 @@ const RecommendBox = styled.div`
   background-color: #212f3c;
   padding: 20px;
   border-radius: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 `;
 
 const RecommendList = styled.ul`
@@ -175,20 +184,24 @@ const RecommendTitle = styled.h3`
 `;
 
 const MusicController = styled.div`
+  background-color: #2d3e50;
   padding: 15px 30px;
-  border-radius: 10px;
+  border-radius: 20px;
+  margin: 0 auto;
+  margin-top: 15px;
   display: flex;
   align-items: center;
-  max-width: 120px;
+  max-width: 150px;
+  width: 100%;
   justify-content: space-between;
-  margin: 0 auto;
-  border: 1px solid white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 `;
 
 const SongTitle = styled.span`
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #fff8e7;
   text-align: left;
+  flex-grow: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -264,6 +277,7 @@ const PauseIcon = () => (
 function ResultPage() {
   const { type } = useParams<{ type: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const cardRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
   const { width, height } = useWindowSize();
@@ -272,6 +286,7 @@ function ResultPage() {
   const [isCapturing, setIsCapturing] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [userName, setUserName] = useState("");
+  const [userNumber, setUserNumber] = useState<number | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowConfetti(false), 8000);
@@ -279,8 +294,15 @@ function ResultPage() {
     if (storedName) {
       setUserName(storedName);
     }
+
+    const params = new URLSearchParams(location.search);
+    const userNumberFromUrl = params.get('userNumber');
+    if (userNumberFromUrl) {
+      setUserNumber(parseInt(userNumberFromUrl, 10));
+    }
+
     return () => clearTimeout(timer);
-  }, []);
+  }, [location.search]);
 
   const result = type ? typedResults[type] : null;
   const videoId = result?.songUrl ? getVideoId(result.songUrl) : null;
@@ -290,12 +312,9 @@ function ResultPage() {
   };
 
   const onPlayerStateChange = (event: { data: number }) => {
-    // Sync isPlaying state with player state
     if (event.data === 1) {
-      // Playing
       setIsPlaying(true);
     } else if (event.data === 2) {
-      // Paused
       setIsPlaying(false);
     }
   };
@@ -314,8 +333,7 @@ function ResultPage() {
     const cardElement = cardRef.current;
     if (!cardElement) return;
 
-    // Temporarily hide music controller
-    const controller = document.getElementById("music-controller"); // Use document.getElementById for elements outside cardRef
+    const controller = document.getElementById("music-controller");
     const originalControllerDisplay = controller
       ? controller.style.display
       : "";
@@ -335,7 +353,7 @@ function ResultPage() {
     } catch (error) {
       console.error("이미지 저장 실패:", error);
     } finally {
-      if (controller) controller.style.display = originalControllerDisplay; // Show it again
+      if (controller) controller.style.display = originalControllerDisplay;
     }
   };
 
@@ -344,8 +362,7 @@ function ResultPage() {
     if (!cardElement || isCapturing) return;
 
     setIsCapturing(true);
-    // Temporarily hide music controller
-    const controller = document.getElementById("music-controller"); // Use document.getElementById for elements outside cardRef
+    const controller = document.getElementById("music-controller");
     const originalControllerDisplay = controller
       ? controller.style.display
       : "";
@@ -411,7 +428,7 @@ function ResultPage() {
     } catch (error) {
       console.error("GIF 생성 실패:", error);
     } finally {
-      if (controller) controller.style.display = originalControllerDisplay; // Show it again
+      if (controller) controller.style.display = originalControllerDisplay;
       setIsCapturing(false);
     }
   };
@@ -476,6 +493,11 @@ function ResultPage() {
               ? `${userName}님의 크리스마스 스타일은...`
               : "나의 크리스마스 스타일은..."}
           </Subtitle>
+          {userNumber && (
+            <ParticipantNumber>
+              당신은 {userNumber.toLocaleString()}번째 참여자입니다!
+            </ParticipantNumber>
+          )}
           <Title>{result.name}</Title>
           <ResultImage src={result.image} alt={result.name} />
           <Description>"{result.description}"</Description>

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { ref, runTransaction } from "firebase/database";
+import { database } from "../firebase";
 import questions from "../data/questions.json";
 import Snowfall from "../components/Snowfall";
 
@@ -88,7 +90,7 @@ function QuestionPage() {
   const [scores, setScores] = useState<Record<string, number>>({});
   const navigate = useNavigate();
 
-  const handleAnswerClick = (type: string) => {
+  const handleAnswerClick = async (type: string) => {
     // 점수 업데이트
     const newScores = { ...scores };
     newScores[type] = (newScores[type] || 0) + 1;
@@ -102,7 +104,24 @@ function QuestionPage() {
       const resultType = Object.keys(newScores).reduce((a, b) =>
         newScores[a] > newScores[b] ? a : b
       );
-      navigate(`/result/${resultType}`);
+
+      const hasParticipated = sessionStorage.getItem("hasParticipated");
+      if (!hasParticipated) {
+        const countRef = ref(database, "participantCount");
+        const result = await runTransaction(countRef, (currentCount) => {
+          return (currentCount || 0) + 1;
+        });
+
+        if (result.committed) {
+          const userNumber = result.snapshot.val();
+          sessionStorage.setItem("hasParticipated", "true");
+          navigate(`/result/${resultType}?userNumber=${userNumber}`);
+        } else {
+          navigate(`/result/${resultType}`); // 트랜잭션 실패 시에도 이동
+        }
+      } else {
+        navigate(`/result/${resultType}`);
+      }
     }
   };
 
